@@ -99,6 +99,7 @@ if [ $PI=1 ]; then
 	./configure
 	sudo make install
 	cp /usr/local/bin/ghc ~/.local/bin
+	echo 'export PATH="~/.local/bin:$PATH"' >> .bashrc
 	source $HOME/.bashrc
 	sudo rm -rf ghc-8.10.4
 
