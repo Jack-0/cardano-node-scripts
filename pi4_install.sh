@@ -32,8 +32,7 @@ sudo apt-get update -y
 sudo apt-get upgrade -y
 sudo apt-get install git jq bc make automake rsync htop curl build-essential pkg-config libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ wget libncursesw5 libtool autoconf -y
 # Raspberry pi dependencies
-sudo apt-get -y install pkg-config libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev build-essential curl libgmp-dev libffi-dev libncurses-dev libtinfo5
-sudo apt-get install llvm  libnuma-dev -y #libsodium-dev
+sudo apt-get -y install libncurses-dev libtinfo5 llvm libnuma-dev -y #libsodium-dev
 
 printf "${YELLOW}CREATING ~/git DIRECTORY${NC}\n"
 mkdir $HOME/git
