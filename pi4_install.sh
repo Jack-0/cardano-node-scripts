@@ -62,12 +62,15 @@ source $HOME/.bashrc
 	
 # build ghc
 printf "${YELLOW}GET AND BUILD GHC${NC}\n"
+cd $HOME/git
 wget https://downloads.haskell.org/~ghc/8.10.4/ghc-8.10.4-aarch64-deb10-linux.tar.xz
 tar -xvf ghc-8.10.4-aarch64-deb10-linux.tar.xz
-rm ghc-8.10.4-aarch64-deb10-linux.tar.xz
-cd ghc-8.10.4/
+#rm ghc-8.10.4-aarch64-deb10-linux.tar.xz
+printf "${YELLOW}DEBUG 1${NC}\n"
+cd $HOME/git/ghc-8.10.4/
 ./configure
 sudo make install
+printf "${YELLOW}DEBUG 2${NC}\n"
 cp /usr/local/bin/ghc ~/.local/bin
 #sudo rm -rf ghc-8.10.4
 
@@ -81,34 +84,36 @@ echo export NODE_BUILD_NUM=$(curl https://hydra.iohk.io/job/Cardano/iohk-nix/car
 source $HOME/.bashrc
 
 
-printf "${YELLOW}CHECKING CABAL AND GHC VERSIONS${NC}\n"
+printf "${YELLOW}Updating cabal${NC}\n"
 $HOME/.local/bin/cabal update
+printf "${YELLOW}Checking cabal and ghc versions${NC}\n"
 $HOME/.local/bin/cabal --version
 /usr/local/bin/ghc --version
 
 
 # BUILD -------------------------------------------------------------
-printf "${YELLOW}BUILD NODE - *NOTE THIS MAY TAKE HOURS ON A PI*$NC\n"
 cd $HOME/git
 git clone https://github.com/input-output-hk/cardano-node.git
 cd cardano-node
 git fetch --all --recurse-submodules --tags
 git checkout $(curl -s https://api.github.com/repos/input-output-hk/cardano-node/releases/latest | jq -r .tag_name)
 
-cabal configure -O0 -w ghc-8.10.4
+printf "${YELLOW}Cabal configure$NC\n"
+$HOME/.local/bin/cabal configure -O0 -w ghc-8.10.4
 #cabal configure -O0 -w /usr/local/bin/ghc-8.10.4
 
 echo -e "package cardano-crypto-praos\n flags: -external-libsodium-vrf" > cabal.project.local
 sed -i $HOME/.cabal/config -e "s/overwrite-policy:/overwrite-policy: always/g"
 rm -rf $HOME/git/cardano-node/dist-newstyle/build/x86_64-linux/ghc-8.10.4
 
+printf "${YELLOW}Builing node - *NOTE THIS MAY TAKE HOURS ON A PI*$NC\n"
 $HOME/.local/bin/cabal build cardano-cli cardano-node
 
 sudo cp $(find $HOME/git/cardano-node/dist-newstyle/build -type f -name "cardano-cli") /usr/local/bin/cardano-cli
 
 sudo cp $(find $HOME/git/cardano-node/dist-newstyle/build -type f -name "cardano-node") /usr/local/bin/cardano-node
 
-printf "\n{$YELLOW}Cardano versions:\n$NC"
+printf "\n{$YELLOW}Cardano versions\n$NC"
 cardano-node version
 cardano-cli version
 printf "\n{$YELLOW}Done! Created by ${CYAN}[PIXEL]${YELLOW} pool.\n$NC"
