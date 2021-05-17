@@ -33,6 +33,7 @@ sudo apt-get upgrade -y
 sudo apt-get install git jq bc make automake rsync htop curl build-essential pkg-config libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ wget libncursesw5 libtool autoconf -y
 # Raspberry pi dependencies
 sudo apt-get -y install libncurses-dev libtinfo5 llvm libnuma-dev -y #libsodium-dev
+#ghc?
 
 printf "${YELLOW}CREATING ~/git DIRECTORY${NC}\n"
 mkdir $HOME/git
@@ -81,9 +82,10 @@ source $HOME/.bashrc
 
 
 printf "${YELLOW}CHECKING CABAL AND GHC VERSIONS${NC}\n"
-cabal update
-cabal --version
-ghc --version
+$HOME/.local/bin/cabal update
+$HOME/.local/bin/cabal --version
+/usr/local/bin/ghc --version
+
 
 # BUILD -------------------------------------------------------------
 printf "${YELLOW}BUILD NODE - *NOTE THIS MAY TAKE HOURS ON A PI*$NC\n"
@@ -94,12 +96,13 @@ git fetch --all --recurse-submodules --tags
 git checkout $(curl -s https://api.github.com/repos/input-output-hk/cardano-node/releases/latest | jq -r .tag_name)
 
 cabal configure -O0 -w ghc-8.10.4
+#cabal configure -O0 -w /usr/local/bin/ghc-8.10.4
 
 echo -e "package cardano-crypto-praos\n flags: -external-libsodium-vrf" > cabal.project.local
 sed -i $HOME/.cabal/config -e "s/overwrite-policy:/overwrite-policy: always/g"
 rm -rf $HOME/git/cardano-node/dist-newstyle/build/x86_64-linux/ghc-8.10.4
 
-cabal build cardano-cli cardano-node
+$HOME/.local/bin/cabal build cardano-cli cardano-node
 
 sudo cp $(find $HOME/git/cardano-node/dist-newstyle/build -type f -name "cardano-cli") /usr/local/bin/cardano-cli
 
